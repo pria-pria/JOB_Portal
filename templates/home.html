@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="d-flex align-items-center mb-4">
+    
+    <div class="flex-grow-1"></div>
+    
+    <h2 class="mb-0 text-center">Job Listings</h2>
+    
+    <div class="flex-grow-1 d-flex justify-content-end">
+        <a href="/post_job" class="btn btn-dark btn-sm me-0">+ Post Job</a>
+    </div>
+
+</div>
+
+<!-- 🔍 Search Bar -->
+<form method="get" action="/search" class="d-flex mx-auto mb-4" style="max-width: 500px;">
+    <input class="form-control me-2" type="text" name="q" placeholder="Search here.....">
+    <button class="btn btn-primary">Search</button>
+</form>
+
+<!-- Scrollable Job List -->
+<div style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
+
+{% for job in jobs %}
+<div class="card shadow-sm p-3 mb-3 mx-auto text-center" style="max-width: 500px;">
+    
+    <h4 class="text-primary">{{ job.title }}</h4>
+
+    <p>{{ job.description }}</p>
+
+    <p class="text-muted">
+        💰 {{ job.salary }} | 📍 {{ job.location }} | 🏢 {{ job.company }}
+    </p>
+
+    <a href="/apply/{{ job.id }}" class="btn btn-success">Apply Now</a>
+
+</div>
+{% endfor %}
+
+{% endblock %}

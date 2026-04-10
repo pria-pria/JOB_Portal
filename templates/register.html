@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="col-md-4 mx-auto">
+<h3>Register</h3>
+<form method="post" class="card p-3 shadow">
+    <input class="form-control mb-2" name="username" placeholder="Username" required>
+<input class="form-control mb-2" type="password" name="password" placeholder="Password" required>
+    <select class="form-control mb-2" name="role">
+        <option value="job_seeker">Job Seeker</option>
+        <option value="employer">Employer</option>
+    </select>
+    <button class="btn btn-primary w-100">Register</button>
+</form>
+<center><a href="/login">Already a User?</a></center>
+</div>
+
+{% endblock %}
