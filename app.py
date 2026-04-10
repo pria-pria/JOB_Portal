@@ -12,7 +12,10 @@ app.config["SECRET_KEY"] = "1e5e9c2c016cd69636df46731d225320"  # SECRET KEY
 # ---------------- DATABASE ----------------
 
 from flask_sqlalchemy import SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///job_portal.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///job_portal.db"
+)
 db= SQLAlchemy(app)
 
 class User(db.Model):
@@ -144,7 +147,8 @@ def search():
 
 
 # ---------------- RUN ----------------
+with app.app_context():
+    db.create_all()
+
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run()
