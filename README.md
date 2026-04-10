@@ -108,11 +108,6 @@ http://127.0.0.1:5000/
 ## 🌐 Live Demo
 
 👉 https://job-portal-bg20.onrender.com
----
-
-## 🎥 Demo Video
-
-👉 *Add your demo video link here (optional)*
 
 ---
 
