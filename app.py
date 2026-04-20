@@ -1,12 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 import os
-
-from flask_login import login_required
+from flask import flash
+from flask_login import UserMixin
+from flask_login import login_required, current_user
+from flask_login import login_user
+from flask_login import LoginManager
 
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "1e5e9c2c016cd69636df46731d225320"  # SECRET KEY
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
 
 
 # ---------------- DATABASE ----------------
@@ -18,13 +27,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
 )
 db= SQLAlchemy(app)
 
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(50))  # employer / job_seeker
 
 class Job(db.Model):
     __tablename__ = 'jobs'
@@ -43,10 +45,22 @@ class Application(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     job_id = db.Column(db.Integer, db.ForeignKey('jobs.id'))
 
+    from flask_login import UserMixin
+
+class User(UserMixin, db.Model):   
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(50))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 # ---------------- ROUTES ----------------
 
-from flask import session, redirect, url_for
 
 @app.route('/')
 def home():
@@ -72,7 +86,6 @@ def register():
     return render_template('register.html')
 
 
-from flask import flash
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -85,9 +98,10 @@ def login():
         if user:
             session['user_id'] = user.id
             session['role'] = user.role
+            login_user(user)   
             return redirect(url_for('home'))
         else:
-            flash("❌ Invalid username or password", "danger")  # 👈 message
+            flash("❌ Invalid username or password", "danger")
 
     return render_template('login.html')
 
@@ -99,12 +113,14 @@ def logout():
 
 
 @app.route('/post_job', methods=['GET', 'POST'])
+@login_required
 def post_job():
-    if session.get('role') != 'employer':
-        return redirect(url_for('home'))
+    print("DEBUG ROLE:", current_user.role)  # 👈 add this temporarily
+
+    if current_user.role != 'employer':
+        return "Unauthorized", 403   # clearer than silent redirect
 
     if request.method == 'POST':
-        print(request.form)
         job = Job(
             title=request.form['title'],
             description=request.form['description'],
@@ -114,7 +130,6 @@ def post_job():
         )
         db.session.add(job)
         db.session.commit()
-
         return redirect(url_for('home'))
 
     return render_template('post_job.html')
@@ -151,4 +166,4 @@ with app.app_context():
     db.create_all()
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug= True)

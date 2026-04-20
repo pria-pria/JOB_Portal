@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% if current_user.is_authenticated and current_user.role == 'employer' %}
+
 <div class="col-md-6 mx-auto">
 <h3>Post a Job</h3>
 <form method="post" class="card p-3 shadow">
@@ -13,5 +15,7 @@
     <button class="btn btn-dark w-100">Post Job</button>
 </form>
 </div>
+
+{% endif %}
 
 {% endblock %}
